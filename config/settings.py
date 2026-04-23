@@ -4,6 +4,7 @@ Reads configuration from environment variables with sensible local defaults.
 
 import os
 from pathlib import Path
+from urllib.parse import urlparse, parse_qsl
 
 from dotenv import load_dotenv
 
@@ -12,7 +13,7 @@ load_dotenv()
 # Core
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "insecure-dev-key-change-me")
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
 
 DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() in ("true", "1", "yes")
 
@@ -80,22 +81,35 @@ _host_port_parts = _host_port.split(":")
 _host = _host_port_parts[0]
 _port = _host_port_parts[1] if len(_host_port_parts) > 1 else "5432"
 
-# Will change later according to Neon's guide
+tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": _dbname,
-        "USER": _user,
-        "PASSWORD": _password,
-        "HOST": _host,
-        "PORT": _port,
-        "OPTIONS": {
-            **({"sslmode": "require"} if not DEBUG else {}),
-        },
-        "CONN_MAX_AGE": 0 if DEBUG else 300,
-        "CONN_HEALTH_CHECKS": True,
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': tmpPostgres.path.replace('/', ''),
+        'USER': tmpPostgres.username,
+        'PASSWORD': tmpPostgres.password,
+        'HOST': tmpPostgres.hostname,
+        'PORT': 5432,
+        'OPTIONS': dict(parse_qsl(tmpPostgres.query)),
     }
 }
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": _dbname,
+#         "USER": _user,
+#         "PASSWORD": _password,
+#         "HOST": _host,
+#         "PORT": _port,
+#         "OPTIONS": {
+#             **({"sslmode": "require"} if not DEBUG else {}),
+#         },
+#         "CONN_MAX_AGE": 0 if DEBUG else 300,
+#         "CONN_HEALTH_CHECKS": True,
+#     }
+# }
 
 # Auth
 AUTH_PASSWORD_VALIDATORS = [
