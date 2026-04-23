@@ -36,6 +36,7 @@ static_collected/
 *.swp
 *.swo
 *~
+.kiro/
 
 # OS
 .DS_Store
@@ -48,3 +49,4 @@ docker-compose.override.yml
 tmp/
 *.tmp
 *.bak
+

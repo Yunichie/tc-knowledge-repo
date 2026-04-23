@@ -30,11 +30,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Third-party
     "corsheaders",
-    # Local
+    # Local (users must come first as it provides the User model)
+    "users",
     "resources",
     "requests",
     "reports",
-    "users",
 ]
 
 # Middleware
@@ -112,12 +112,25 @@ DATABASES = {
 # }
 
 # Auth
+AUTH_USER_MODEL = "users.User"
+
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
+
+# JWT Configuration
+JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "dev-secret-key-change-in-production")
+JWT_EXPIRATION_HOURS = int(os.environ.get("JWT_EXPIRATION_HOURS", "24"))
+JWT_ALGORITHM = "HS256"
+
+# Google OAuth
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+
+# Development Authentication (header-based auth only enabled in debug mode)
+DEV_AUTH_ENABLED = DEBUG
 
 # Internationalization
 LANGUAGE_CODE = "en-us"
