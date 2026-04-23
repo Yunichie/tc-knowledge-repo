@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "resources",
     "requests",
     "reports",
+    "users",
 ]
 
 # Middleware

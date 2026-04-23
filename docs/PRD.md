@@ -24,7 +24,7 @@ This document defines the **backend scope only**. The frontend (Next.js) is owne
 | **Student** | Authenticated user | All anonymous capabilities + upload resources, request resources, fulfill requests, report content, trigger bulk downloads |
 | **Admin** | Staff/moderator | All student capabilities + approve/reject resources, view reports, manage categories/tags |
 
-> **Auth Boundary:** Authentication is owned by the frontend (NextAuth/JWT). The backend validates incoming tokens via middleware. For initial development, auth is stubbed with a simple header-based mechanism (`X-User-Id`, `X-User-Role`).
+> **Auth Boundary:** The backend acts as the Identity Provider. It owns the `users` app, the custom `User` model, and provides endpoints for Registration, Login, and Google OAuth to issue JWTs. The Next.js frontend (e.g. NextAuth) calls these endpoints and attaches the returned JWT as a `Bearer` token to all subsequent API requests.
 
 ---
 
@@ -237,7 +237,6 @@ Admin   ──► GET /api/reports/
 
 ## 9. Out of Scope (v1)
 
-- User registration/login (owned by frontend)
 - Email notifications
 - Real-time features (WebSockets)
 - Resource versioning

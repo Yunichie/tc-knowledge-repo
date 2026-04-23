@@ -10,15 +10,16 @@ Backend API for a college knowledge-sharing platform. Django + Django Ninja, Cel
 
 ## Architecture
 
-3-app split with one-way dependencies:
+4-app split with one-way dependencies:
 
 ```
-resources/  ← core app (Resource, Category, Tag, BulkDownload)
-requests/   ← depends on resources (ResourceRequest)
-reports/    ← depends on resources (Report)
+users/      ← identity provider (User, Auth)
+resources/  ← depends on users (Resource, Category, Tag, BulkDownload)
+requests/   ← depends on resources, users (ResourceRequest)
+reports/    ← depends on resources, users (Report)
 ```
 
-`requests` and `reports` may import from `resources`. `resources` MUST NOT import from `requests` or `reports`.
+`requests` and `reports` may import from `resources` and `users`. `resources` may import from `users`. Lower level apps MUST NOT import from higher level apps (e.g. `users` cannot import from `resources`).
 
 ## Tech Stack (Locked)
 
