@@ -68,7 +68,6 @@ class PresignedUploadIn(Schema):
 
 class PresignedUploadOut(Schema):
     url: str
-    fields: dict
     object_key: str
 
 

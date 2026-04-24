@@ -18,9 +18,11 @@ def get_r2_client():
     )
 
 
-def generate_presigned_post(filename: str, content_type: str) -> dict:
+def generate_presigned_put(filename: str, content_type: str) -> dict:
     """
-    Generates a presigned POST URL with a 50MB limit and 1hr expiry.
+    Generates a presigned PUT URL with a 1hr expiry.
+    (Note: R2 does not support POST policies, so we must use PUT. Size limits 
+    will need to be enforced client-side or validated post-upload).
     """
     client = get_r2_client()
 
@@ -28,28 +30,22 @@ def generate_presigned_post(filename: str, content_type: str) -> dict:
     ext = filename.split(".")[-1] if "." in filename else ""
     object_key = f"resources/{uuid.uuid4()}.{ext}"
 
-    max_size_bytes = settings.R2_MAX_PDF_SIZE_MB * 1024 * 1024
-
     try:
-        response = client.generate_presigned_post(
-            Bucket=settings.R2_BUCKET_NAME,
-            Key=object_key,
-            Fields={
-                "Content-Type": content_type,
+        url = client.generate_presigned_url(
+            ClientMethod="put_object",
+            Params={
+                "Bucket": settings.R2_BUCKET_NAME,
+                "Key": object_key,
+                "ContentType": content_type,
             },
-            Conditions=[
-                {"Content-Type": content_type},
-                ["content-length-range", 1, max_size_bytes],
-            ],
             ExpiresIn=settings.R2_PRESIGNED_URL_EXPIRY,
         )
         return {
-            "url": response["url"],
-            "fields": response["fields"],
+            "url": url,
             "object_key": object_key,
         }
     except ClientError as e:
-        raise Exception(f"Could not generate presigned POST URL: {str(e)}")
+        raise Exception(f"Could not generate presigned PUT URL: {str(e)}")
 
 
 def generate_presigned_get(object_key: str, expires_in: int = 3600) -> str:
