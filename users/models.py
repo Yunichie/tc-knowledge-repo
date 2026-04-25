@@ -22,6 +22,7 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("role", UserRole.ADMIN)
         extra_fields.setdefault("is_active", True)
+        extra_fields.setdefault("is_superuser", True)
         return self.create_user(email, password, **extra_fields)
 
 
@@ -46,6 +47,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         db_table = "users"
         ordering = ["-date_joined"]
+
+    @property
+    def is_staff(self):
+        """Required for Django admin access purposes."""
+        return self.role == UserRole.ADMIN
 
     def __str__(self):
         return self.email
