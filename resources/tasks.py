@@ -1,7 +1,7 @@
 import os
 import tempfile
 import zipfile
-from typing import Any, Dict
+from typing import Any
 
 from celery import shared_task
 from django.conf import settings
@@ -25,7 +25,7 @@ def generate_bulk_download_zip(self, bulk_download_id: str):
     bulk_download.save()
 
     try:
-        filters: Dict[str, Any] = bulk_download.filters
+        filters: dict[str, Any] = bulk_download.filters
         qs = Resource.objects.filter(status=ResourceStatus.APPROVED, type=ResourceType.PDF)
 
         category_id = filters.get("category_id")

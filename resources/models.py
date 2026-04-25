@@ -1,7 +1,8 @@
 import uuid
-from django.db import models
-from django.contrib.postgres.search import SearchVectorField
+
 from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVectorField
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from users.models import User

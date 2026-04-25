@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List, Optional
 from uuid import UUID
 
 from ninja import Field, Schema
@@ -23,12 +22,12 @@ class ResourceIn(Schema):
     description: str
     type: str
     category_id: UUID
-    tag_ids: List[UUID] = []
+    tag_ids: list[UUID] = []
 
     # Optional fields based on type
-    r2_object_key: Optional[str] = None
-    youtube_url: Optional[str] = None
-    markdown_body: Optional[str] = None
+    r2_object_key: str | None = None
+    youtube_url: str | None = None
+    markdown_body: str | None = None
 
 
 class ResourceOut(Schema):
@@ -44,7 +43,7 @@ class ResourceOut(Schema):
     markdown_body: str
 
     category: CategoryOut
-    tags: List[TagOut]
+    tags: list[TagOut]
     uploader_id: UUID
 
     created_at: datetime
@@ -52,11 +51,11 @@ class ResourceOut(Schema):
 
 
 class ResourceFilterParams(Schema):
-    category_id: Optional[UUID] = None
-    tag_ids: Optional[List[UUID]] = None
-    search: Optional[str] = None
-    type: Optional[str] = None
-    sort: Optional[str] = "newest"  # newest, oldest
+    category_id: UUID | None = None
+    tag_ids: list[UUID] | None = None
+    search: str | None = None
+    type: str | None = None
+    sort: str | None = "newest"  # newest, oldest
     limit: int = Field(20, ge=1, le=100)
     offset: int = Field(0, ge=0)
 
@@ -73,7 +72,7 @@ class PresignedUploadOut(Schema):
 
 class ModerateIn(Schema):
     action: str  # approve or reject
-    reason: Optional[str] = None
+    reason: str | None = None
 
     @model_validator(mode="after")
     def check_reason_if_rejected(self):
@@ -83,13 +82,13 @@ class ModerateIn(Schema):
 
 
 class BulkDownloadIn(Schema):
-    category_id: Optional[UUID] = None
-    tag_ids: Optional[List[UUID]] = None
-    search: Optional[str] = None
+    category_id: UUID | None = None
+    tag_ids: list[UUID] | None = None
+    search: str | None = None
 
 
 class BulkDownloadOut(Schema):
     id: UUID
-    task_id: Optional[str] = None
+    task_id: str | None = None
     status: str
     download_url: str

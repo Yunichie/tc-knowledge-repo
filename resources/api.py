@@ -1,4 +1,3 @@
-from typing import List, Optional
 from uuid import UUID
 
 from django.contrib.postgres.search import SearchQuery, SearchRank
@@ -36,7 +35,7 @@ router = Router()
 # Public Endpoints
 
 
-@router.get("/", response=List[ResourceOut])
+@router.get("/", response=list[ResourceOut])
 def list_resources(request, filters: ResourceFilterParams = Query(...)):
     """List approved resources with optional filtering, search, and pagination."""
     qs = Resource.objects.filter(status=ResourceStatus.APPROVED).select_related("category").prefetch_related("tags")
@@ -78,13 +77,13 @@ def get_resource(request, resource_id: UUID):
         return 404, {"detail": "Resource not found."}
 
 
-@router.get("/categories/", response=List[CategoryOut])
+@router.get("/categories/", response=list[CategoryOut])
 def list_categories(request):
     """List all categories."""
     return Category.objects.all().order_by("name")
 
 
-@router.get("/tags/", response=List[TagOut])
+@router.get("/tags/", response=list[TagOut])
 def list_tags(request):
     """List all tags."""
     return Tag.objects.all().order_by("name")

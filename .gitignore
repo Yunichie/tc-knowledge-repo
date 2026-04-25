@@ -16,6 +16,9 @@ venv/
 # uv
 uv.lock
 
+# ruff
+.ruff_cache/
+
 # Environment variables
 .env
 .env.local
