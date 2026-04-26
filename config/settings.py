@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     # Third-party
+    "django.contrib.postgres",
     "corsheaders",
     # Local (users must come first as it provides the User model)
     "users",
