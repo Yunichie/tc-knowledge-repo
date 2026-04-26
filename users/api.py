@@ -1,9 +1,9 @@
-from ninja import Router
 from django.db import IntegrityError
-from django.conf import settings
+from ninja import Router
+
+from .auth import authenticate_request, generate_jwt
 from .models import User, UserRole
-from .schemas import RegisterSchema, LoginSchema, GoogleAuthSchema, UserSchema, AuthResponseSchema
-from .auth import generate_jwt, authenticate_request
+from .schemas import AuthResponseSchema, GoogleAuthSchema, LoginSchema, RegisterSchema, UserSchema
 
 router = Router()
 

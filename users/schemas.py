@@ -1,14 +1,14 @@
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
+
 from pydantic import BaseModel, EmailStr, field_validator
 
 
 class RegisterSchema(BaseModel):
     email: EmailStr
     password: str
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
+    first_name: str | None = None
+    last_name: str | None = None
 
     @field_validator("password")
     @classmethod
@@ -30,8 +30,8 @@ class GoogleAuthSchema(BaseModel):
 class UserSchema(BaseModel):
     id: UUID
     email: str
-    first_name: Optional[str]
-    last_name: Optional[str]
+    first_name: str | None
+    last_name: str | None
     role: str
     date_joined: datetime
 

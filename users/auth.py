@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
-from typing import Optional
+
 import jwt
 from django.conf import settings
 from django.http import HttpRequest
+
 from .models import User
 
 
@@ -53,7 +54,7 @@ def get_user_from_token(token: str) -> User:
         raise ValueError("User not found")
 
 
-def authenticate_request(request: HttpRequest) -> Optional[User]:
+def authenticate_request(request: HttpRequest) -> User | None:
     """
     Authenticate a request using JWT or dev headers.
     In production: extracts and validates Bearer token.

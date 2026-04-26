@@ -6,6 +6,7 @@ The Django admin is available at /admin/ (for moderation convenience).
 from django.contrib import admin
 from django.urls import path
 from ninja import NinjaAPI
+
 from reports.api import router as reports_router
 from resources.api import router as resources_router
 from users.api import router as users_router

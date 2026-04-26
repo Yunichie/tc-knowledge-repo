@@ -1,4 +1,3 @@
-from typing import List
 from uuid import UUID
 
 from ninja import Router
@@ -35,7 +34,7 @@ def create_report(request, data: ReportIn):
     return 201, report
 
 
-@router.get("/", response={200: List[ReportOut], 401: dict, 403: dict})
+@router.get("/", response={200: list[ReportOut], 401: dict, 403: dict})
 def list_reports(request):
     """List all reports (admin only)."""
     try:

@@ -4,7 +4,7 @@ Reads configuration from environment variables with sensible local defaults.
 
 import os
 from pathlib import Path
-from urllib.parse import urlparse, parse_qsl
+from urllib.parse import parse_qsl, urlparse
 
 from dotenv import load_dotenv
 

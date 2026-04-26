@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from ninja import Schema
@@ -18,7 +17,7 @@ class ReportOut(Schema):
     reason: str
     description: str
     status: str
-    resolved_by_id: Optional[UUID] = None
+    resolved_by_id: UUID | None = None
     created_at: datetime
     updated_at: datetime
 
