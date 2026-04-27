@@ -1,8 +1,8 @@
-from django.test import TestCase
-from django.test import TestCase, Client
-from django.contrib.auth import get_user_model
 import json
 from uuid import uuid4
+
+from django.contrib.auth import get_user_model
+from django.test import Client, TestCase
 
 from requests.models import ResourceRequest, ResourceRequestStatus
 from resources.models import Category, Resource, ResourceStatus, ResourceType

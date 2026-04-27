@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from ninja import Query, Router
+from ninja import Router
 
 from requests.models import ResourceRequest, ResourceRequestStatus
 from requests.schemas import (
@@ -11,7 +11,6 @@ from requests.schemas import (
 )
 from resources.models import Resource
 from users.auth import authenticate_request
-from users.models import UserRole
 
 router = Router()
 
