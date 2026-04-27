@@ -83,3 +83,15 @@ def stream_object(object_key: str, chunk_size: int = 8192):
                 yield chunk
     except ClientError as e:
         raise Exception(f"Could not stream object {object_key}: {str(e)}")
+
+
+def delete_r2_object(object_key: str) -> None:
+    """Deletes an object from R2 storage."""
+    client = get_r2_client()
+    try:
+        client.delete_object(
+            Bucket=settings.R2_BUCKET_NAME,
+            Key=object_key,
+        )
+    except ClientError as e:
+        raise Exception(f"Could not delete object {object_key}: {str(e)}")

@@ -1,9 +1,11 @@
+import contextlib
 from uuid import UUID
 
 from django.contrib.postgres.search import SearchQuery, SearchRank
 from django.db.models import F
 from ninja import Query, Router
 
+from reports.models import Report, ReportStatus
 from resources.models import (
     BulkDownload,
     Category,
@@ -24,7 +26,7 @@ from resources.schemas import (
     ResourceOut,
     TagOut,
 )
-from resources.services import generate_presigned_put
+from resources.services import delete_r2_object, generate_presigned_put
 from resources.tasks import generate_bulk_download_zip
 from users.auth import authenticate_request
 from users.models import UserRole
@@ -222,3 +224,39 @@ def moderate_resource(request, resource_id: UUID, data: ModerateIn):
 
     resource.save()
     return 200, resource
+
+
+@router.delete("/{uuid:resource_id}/", response={204: None, 401: dict, 403: dict, 404: dict})
+def delete_resource(request, resource_id: UUID):
+    """Delete a resource. Students can delete their own; admins can delete only reported+rejected resources."""
+    try:
+        user = authenticate_request(request)
+    except ValueError as e:
+        return 401, {"detail": str(e)}
+
+    try:
+        resource = Resource.objects.get(id=resource_id)
+    except Resource.DoesNotExist:
+        return 404, {"detail": "Resource not found."}
+
+    is_owner = resource.uploader_id == user.id
+    is_admin = user.role == UserRole.ADMIN
+
+    if not is_owner and not is_admin:
+        return 403, {"detail": "You do not have permission to delete this resource."}
+
+    if is_admin and not is_owner:
+        has_open_report = Report.objects.filter(
+            resource=resource, status=ReportStatus.OPEN
+        ).exists()
+        if not has_open_report or resource.status != ResourceStatus.REJECTED:
+            return 403, {
+                "detail": "Admins can only delete resources that are rejected and have an open report."
+            }
+
+    if resource.type == ResourceType.PDF and resource.r2_object_key:
+        with contextlib.suppress(Exception):
+            delete_r2_object(resource.r2_object_key)
+
+    resource.delete()
+    return 204, None
