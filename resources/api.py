@@ -63,7 +63,7 @@ def list_resources(request, filters: ResourceFilterParams = Query(...)):
     return qs[filters.offset : filters.offset + filters.limit]
 
 
-@router.get("/{resource_id}/", response={200: ResourceOut, 404: dict})
+@router.get("/{uuid:resource_id}/", response={200: ResourceOut, 404: dict})
 def get_resource(request, resource_id: UUID):
     """Get a single resource by ID."""
     try:
