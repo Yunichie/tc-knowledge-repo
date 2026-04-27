@@ -84,6 +84,10 @@ Students can ask the community for specific files they are missing.
   * Student B clicks "Fulfill" and uploads the PDF.
   * The backend links Student B's new resource to Student A's request, changing the request status to `FULFILLED`.
   * Student A can now click on their fulfilled request to view the resource.
+* **Scenario C: Deleting a Request.**
+  * Student A finds the 2024 Final Exam on their own, or realizes they made a typo in their request.
+  * Student A clicks "Delete Request".
+  * The backend verifies Student A is the original requester and deletes the request from the public board. Admins can also delete requests if they are spam or inappropriate.
 
 ---
 

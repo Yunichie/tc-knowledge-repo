@@ -110,6 +110,11 @@ Student A ──► POST /api/requests/
 Student B ──► PATCH /api/requests/{id}/fulfill/
               body: { resource_id }
            ──► Request status=FULFILLED, linked to resource
+
+Student A ──► DELETE /api/requests/{id}/
+           ──► Backend verifies ownership (must be requester) OR Admin status
+           ──► Backend deletes request record from PostgreSQL
+           ──► Returns 204 No Content
 ```
 
 ### 3.5 Content Reporting Flow
@@ -179,6 +184,7 @@ Student/Admin ──► DELETE /api/resources/{id}/
 | `POST` | `/requests/` | Student | Create a resource request |
 | `GET` | `/requests/{id}/` | Public | Request detail |
 | `PATCH` | `/requests/{id}/fulfill/` | Student | Fulfill a request by linking a resource |
+| `DELETE` | `/requests/{id}/` | Student/Admin | Delete a resource request. Restricted to the requester or an Admin. |
 
 ### 4.4 Reports
 
