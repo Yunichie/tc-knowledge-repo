@@ -131,6 +131,18 @@ Admin   ──► GET /api/reports/
 - `DUPLICATE` — Duplicate resource
 - `OTHER` — Other (requires description)
 
+### 3.6 Resource Deletion Flow
+
+```
+Student/Admin ──► DELETE /api/resources/{id}/
+               ──► Backend verifies ownership (must be uploader) OR Admin status
+               ──► If Admin, backend verifies an OPEN report exists for this resource AND the resource's status is `REJECTED`
+               ──► If PDF, backend deletes file from Cloudflare R2
+               ──► Backend deletes resource record from PostgreSQL
+               ──► Cascading delete automatically removes associated Reports/Requests
+               ──► Returns 204 No Content
+```
+
 ---
 
 ## 4. API Contract
@@ -150,6 +162,7 @@ Admin   ──► GET /api/reports/
 | `PATCH` | `/resources/{id}/moderate/` | Admin | Approve or reject a resource |
 | `POST` | `/resources/bulk-download/` | Student | Enqueue bulk PDF download job |
 | `GET` | `/resources/bulk-download/{task_id}/` | Student | Poll bulk download task status |
+| `DELETE` | `/resources/{id}/` | Student/Admin | Delete a resource and its R2 file. Restricted to the uploader, OR an Admin responding to an open report. |
 
 ### 4.2 Categories & Tags
 

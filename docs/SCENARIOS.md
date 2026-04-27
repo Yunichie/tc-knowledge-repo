@@ -100,3 +100,22 @@ Students can flag inappropriate or copyrighted material.
 * **Scenario C: Resolving a Report (Removal).**
   * An admin reviews the reported resource, agrees it violates rules, and resolves the report with action `remove_resource`.
   * The backend changes the offending resource's status from `APPROVED` to `REJECTED` (effectively hiding it from the public) and closes the report.
+
+---
+
+## 8. Resource Deletion
+Students can delete resources they previously uploaded. Admins can permanently delete resources, but only as a response to community flags.
+
+* **Scenario A: Student deletes their own resource.**
+  * A student views the details of a resource they uploaded.
+  * They click "Delete".
+  * The backend verifies the student is the original uploader, physically removes the file from Cloudflare R2 (to save storage costs), and deletes the record from the database.
+* **Scenario B: Admin purges a reported resource.**
+  * An admin reviews the "Reports Queue" and finds a resource that blatantly violates the rules (e.g., highly inappropriate content).
+  * The admin clicks "Delete Resource".
+  * The backend verifies their Admin role AND verifies that an `OPEN` report exists for this specific resource AND the resource's status is `REJECTED`.
+  * The backend deletes the associated R2 file and the database record. The PostgreSQL cascade automatically wipes the report from the queue since the underlying resource no longer exists.
+* **Scenario C: Admin attempts to arbitrarily delete a clean resource.**
+  * An admin views a resource on the main feed that has *not* been reported by any student.
+  * The admin attempts to delete it anyway.
+  * The backend verifies the user is an Admin, but blocks the action with a `403 Forbidden` error because there are no pending reports against the resource, preventing unilateral abuse of power.
