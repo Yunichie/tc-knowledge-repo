@@ -11,6 +11,7 @@ from requests.schemas import (
 )
 from resources.models import Resource
 from users.auth import authenticate_request
+from users.models import UserRole
 
 router = Router()
 
@@ -79,3 +80,29 @@ def fulfill_request(request, request_id: UUID, data: ResourceRequestFulfillSchem
     resource_request.save()
 
     return 200, resource_request
+
+
+@router.delete(
+    "/{request_id}/",
+    response={204: None, 401: dict, 403: dict, 404: dict},
+)
+def delete_request(request, request_id: UUID):
+    """Delete a resource request. Restricted to the requester or an Admin."""
+    try:
+        user = authenticate_request(request)
+    except ValueError as e:
+        return 401, {"detail": str(e)}
+
+    try:
+        resource_request = ResourceRequest.objects.get(id=request_id)
+    except ResourceRequest.DoesNotExist:
+        return 404, {"detail": "Request not found."}
+
+    is_owner = resource_request.requester_id == user.id
+    is_admin = user.role == UserRole.ADMIN
+
+    if not is_owner and not is_admin:
+        return 403, {"detail": "You do not have permission to delete this request."}
+
+    resource_request.delete()
+    return 204, None
