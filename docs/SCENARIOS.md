@@ -15,6 +15,12 @@ All students and admins must have an account to interact with the platform (exce
 * **Scenario C: Student signs in via Google OAuth (Future Feature).**
   * The student clicks "Sign in with Google", which returns an `id_token`.
   * The app sends this to the backend, which verifies the token, matches or creates the user, and returns a JWT token.
+* **Scenario D: A student tries to register with a non-ITS email.**
+  * The student submits `john@gmail.com` as their email.
+  * The backend rejects registration with a `400` error: "Registration is restricted to institutional email addresses."
+* **Scenario E: A temporarily banned user tries to log in.**
+  * The student enters valid credentials, but their `banned_until` is in the future.
+  * The backend returns `403 Forbidden`: "Your account is temporarily suspended until {date}."
 
 ---
 
@@ -45,6 +51,21 @@ Students can share materials with their peers. All uploads start as `PENDING`.
   * The student types a long-form article into the rich text editor.
   * The app submits the raw markdown and metadata directly to the backend.
   * The resource is created as `PENDING`.
+* **Scenario D: Uploading a disguised executable.**
+  * The student uploads a `.pdf` file that is actually an `.exe` (magic bytes don't match PDF `%PDF-` header).
+  * The Celery auto-moderation task detects the mismatch → status set to `REJECTED`, reason: "File integrity check failed."
+* **Scenario E: Uploading an exact duplicate file.**
+  * The student uploads a PDF. The system computes SHA-256 and finds an identical hash already in the database.
+  * The upload is auto-`REJECTED`, reason: "Exact duplicate detected." The uploader's `strike_count` is incremented.
+* **Scenario F: Uploading a near-duplicate document.**
+  * The student uploads a PDF that is ~95% similar to an existing resource (MinHash comparison).
+  * The upload is auto-`REJECTED`, reason: "Near-duplicate content detected (95% similarity)."
+* **Scenario G: Uploading a resource with spam keywords.**
+  * The student submits a resource with title "BUY CHEAP ESSAYS NOW".
+  * The Celery task detects flagged keywords → status set to `REJECTED`, reason: "Content flagged for spam."
+* **Scenario H: Clean upload passes all automated checks.**
+  * The student uploads a legitimate PDF. Magic bytes ✓, no spam ✓, no exact match ✓, MinHash < 90% ✓.
+  * The resource status is automatically set to `APPROVED` — no human moderator needed.
 
 ---
 
@@ -104,6 +125,10 @@ Students can flag inappropriate or copyrighted material.
 * **Scenario C: Resolving a Report (Removal).**
   * An admin reviews the reported resource, agrees it violates rules, and resolves the report with action `remove_resource`.
   * The backend changes the offending resource's status from `APPROVED` to `REJECTED` (effectively hiding it from the public) and closes the report.
+* **Scenario D: Auto-quarantine after 3 reports.**
+  * Three different students independently report the same approved resource.
+  * After the 3rd report is filed, the system automatically changes the resource status from `APPROVED` to `QUARANTINED`, hiding it from the public feed.
+  * Admins are alerted via the reports queue for manual review.
 
 ---
 

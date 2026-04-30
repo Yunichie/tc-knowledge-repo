@@ -17,6 +17,8 @@ Table users {
   last_name varchar(150)
   role user_role [not null, default: 'STUDENT']
   is_active boolean [not null, default: true]
+  strike_count int [not null, default: 0, note: 'Incremented on malicious/duplicate uploads']
+  banned_until timestamp [note: 'Nullable, set when strike_count reaches 3']
   date_joined timestamp [not null]
 }
 
@@ -30,9 +32,17 @@ Table categories {
   updated_at timestamp [not null]
 }
 
+Enum tag_type {
+  SEMESTER
+  TAHUN
+  KELAS
+  GENERAL
+}
+
 Table tags {
   id uuid [primary key]
   name varchar(50) [not null, unique]
+  type tag_type [not null, default: 'GENERAL']
   created_at timestamp [not null]
   updated_at timestamp [not null]
 }
@@ -47,6 +57,7 @@ Enum resource_status {
   PENDING
   APPROVED
   REJECTED
+  QUARANTINED [note: 'Auto-set when 3+ distinct users report the resource']
 }
 
 Table resources {
@@ -56,6 +67,8 @@ Table resources {
   type resource_type [not null]
   status resource_status [not null, default: 'PENDING']
   rejection_reason text
+  file_hash varchar(64) [note: 'SHA-256 hex digest of uploaded file, nullable']
+  minhash_signature jsonb [note: 'MinHash signature array for near-duplicate detection, nullable']
   r2_object_key varchar [note: 'Nullable, used for PDF']
   youtube_url varchar [note: 'Nullable, used for YOUTUBE']
   markdown_body text [note: 'Nullable, used for MARKDOWN']
