@@ -19,9 +19,7 @@ router = Router()
 @router.get("/", response=list[ResourceRequestListSchema])
 def list_requests(request):
     """List open resource requests."""
-    requests_qs = ResourceRequest.objects.filter(
-        status=ResourceRequestStatus.OPEN
-    ).order_by("-created_at")
+    requests_qs = ResourceRequest.objects.filter(status=ResourceRequestStatus.OPEN).order_by("-created_at")
     return requests_qs
 
 

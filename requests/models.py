@@ -22,9 +22,7 @@ class ResourceRequest(models.Model):
         default=ResourceRequestStatus.OPEN,
     )
 
-    requester = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="resource_requests"
-    )
+    requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name="resource_requests")
     fulfilled_by_resource = models.ForeignKey(
         Resource,
         on_delete=models.SET_NULL,
