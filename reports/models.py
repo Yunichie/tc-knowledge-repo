@@ -23,29 +23,13 @@ class ReportStatus(models.TextChoices):
 
 class Report(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    resource = models.ForeignKey(
-        Resource,
-        on_delete=models.CASCADE,
-        related_name="reports"
-    )
-    reporter = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="reports_created"
-    )
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="reports")
+    reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reports_created")
     reason = models.CharField(max_length=20, choices=ReportReason.choices)
     description = models.TextField()
-    status = models.CharField(
-        max_length=20,
-        choices=ReportStatus.choices,
-        default=ReportStatus.OPEN
-    )
+    status = models.CharField(max_length=20, choices=ReportStatus.choices, default=ReportStatus.OPEN)
     resolved_by = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        related_name="reports_resolved",
-        null=True,
-        blank=True
+        User, on_delete=models.SET_NULL, related_name="reports_resolved", null=True, blank=True
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -8,30 +8,73 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('resources', '0001_initial'),
+        ("resources", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Report',
+            name="Report",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('reason', models.CharField(choices=[('COPYRIGHT', 'Copyright Violation'), ('INAPPROPRIATE', 'Inappropriate Content'), ('SPAM', 'Spam or Misleading'), ('DUPLICATE', 'Duplicate Resource'), ('OTHER', 'Other')], max_length=20)),
-                ('description', models.TextField()),
-                ('status', models.CharField(choices=[('OPEN', 'Open'), ('DISMISSED', 'Dismissed'), ('REMOVED', 'Removed')], default='OPEN', max_length=20)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('reporter', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reports_created', to=settings.AUTH_USER_MODEL)),
-                ('resolved_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='reports_resolved', to=settings.AUTH_USER_MODEL)),
-                ('resource', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reports', to='resources.resource')),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                (
+                    "reason",
+                    models.CharField(
+                        choices=[
+                            ("COPYRIGHT", "Copyright Violation"),
+                            ("INAPPROPRIATE", "Inappropriate Content"),
+                            ("SPAM", "Spam or Misleading"),
+                            ("DUPLICATE", "Duplicate Resource"),
+                            ("OTHER", "Other"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                ("description", models.TextField()),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("OPEN", "Open"), ("DISMISSED", "Dismissed"), ("REMOVED", "Removed")],
+                        default="OPEN",
+                        max_length=20,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "reporter",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reports_created",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "resolved_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="reports_resolved",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "resource",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, related_name="reports", to="resources.resource"
+                    ),
+                ),
             ],
             options={
-                'indexes': [models.Index(fields=['resource'], name='reports_rep_resourc_f9a71b_idx'), models.Index(fields=['reporter'], name='reports_rep_reporte_101677_idx'), models.Index(fields=['status'], name='reports_rep_status_c732ef_idx')],
+                "indexes": [
+                    models.Index(fields=["resource"], name="reports_rep_resourc_f9a71b_idx"),
+                    models.Index(fields=["reporter"], name="reports_rep_reporte_101677_idx"),
+                    models.Index(fields=["status"], name="reports_rep_status_c732ef_idx"),
+                ],
             },
         ),
     ]

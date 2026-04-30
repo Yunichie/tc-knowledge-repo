@@ -9,7 +9,7 @@ class ReportAdmin(admin.ModelAdmin):
     list_filter = ("reason", "status", "created_at")
     search_fields = ("description", "resource__title", "reporter__email")
     readonly_fields = ("id", "created_at", "updated_at")
-    
+
     fieldsets = (
         (None, {"fields": ("resource", "reporter", "reason", "description")}),
         ("Status", {"fields": ("status", "resolved_by")}),

@@ -31,6 +31,13 @@ def create_report(request, data: ReportIn):
         description=data.description,
     )
 
+    distinct_reporters = (
+        Report.objects.filter(resource=resource, status=ReportStatus.OPEN).values("reporter_id").distinct().count()
+    )
+    if distinct_reporters >= 3 and resource.status == ResourceStatus.APPROVED:
+        resource.status = ResourceStatus.QUARANTINED
+        resource.save()
+
     return 201, report
 
 
@@ -74,7 +81,7 @@ def resolve_report(request, report_id: UUID, data: ResolveReportIn):
     elif data.action == "remove_resource":
         report.status = ReportStatus.REMOVED
         report.resolved_by = user
-        
+
         resource = report.resource
         if resource.status == ResourceStatus.APPROVED:
             resource.status = ResourceStatus.REJECTED
