@@ -23,9 +23,17 @@ class Category(models.Model):
         return self.name
 
 
+class TagType(models.TextChoices):
+    SEMESTER = "SEMESTER", _("Semester")
+    TAHUN = "TAHUN", _("Tahun")
+    KELAS = "KELAS", _("Kelas")
+    GENERAL = "GENERAL", _("General")
+
+
 class Tag(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=50, unique=True)
+    type = models.CharField(max_length=20, choices=TagType.choices, default=TagType.GENERAL)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -43,6 +51,7 @@ class ResourceStatus(models.TextChoices):
     PENDING = "PENDING", _("Pending")
     APPROVED = "APPROVED", _("Approved")
     REJECTED = "REJECTED", _("Rejected")
+    QUARANTINED = "QUARANTINED", _("Quarantined")
 
 
 class Resource(models.Model):
@@ -50,10 +59,12 @@ class Resource(models.Model):
     title = models.CharField(max_length=200)
     description = models.CharField(max_length=2000)
     type = models.CharField(max_length=20, choices=ResourceType.choices)
-    status = models.CharField(
-        max_length=20, choices=ResourceStatus.choices, default=ResourceStatus.PENDING
-    )
+    status = models.CharField(max_length=20, choices=ResourceStatus.choices, default=ResourceStatus.PENDING)
     rejection_reason = models.TextField(blank=True)
+
+    # Dedup fields
+    file_hash = models.CharField(max_length=64, blank=True, db_index=True)
+    minhash_signature = models.JSONField(null=True, blank=True)
 
     # Type-specific fields
     r2_object_key = models.CharField(max_length=1000, blank=True)
@@ -91,14 +102,12 @@ class BulkDownloadStatus(models.TextChoices):
 class BulkDownload(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     task_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
-    status = models.CharField(
-        max_length=20, choices=BulkDownloadStatus.choices, default=BulkDownloadStatus.PENDING
-    )
+    status = models.CharField(max_length=20, choices=BulkDownloadStatus.choices, default=BulkDownloadStatus.PENDING)
     filters = models.JSONField(default=dict)
     download_url = models.URLField(max_length=1000, blank=True)
-    
+
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bulk_downloads")
-    
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

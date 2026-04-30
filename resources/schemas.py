@@ -15,6 +15,7 @@ class CategoryOut(Schema):
 class TagOut(Schema):
     id: UUID
     name: str
+    type: str
 
 
 class ResourceIn(Schema):

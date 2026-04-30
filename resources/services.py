@@ -21,7 +21,7 @@ def get_r2_client():
 def generate_presigned_put(filename: str, content_type: str) -> dict:
     """
     Generates a presigned PUT URL with a 1hr expiry.
-    (Note: R2 does not support POST policies, so we must use PUT. Size limits 
+    (Note: R2 does not support POST policies, so we must use PUT. Size limits
     will need to be enforced client-side or validated post-upload).
     """
     client = get_r2_client()

@@ -2,7 +2,8 @@ import contextlib
 from uuid import UUID
 
 from django.contrib.postgres.search import SearchQuery, SearchRank
-from django.db.models import F
+from django.db import models
+from django.db.models import Count, F
 from ninja import Query, Router
 
 from reports.models import Report, ReportStatus
@@ -27,7 +28,7 @@ from resources.schemas import (
     TagOut,
 )
 from resources.services import delete_r2_object, generate_presigned_put
-from resources.tasks import generate_bulk_download_zip
+from resources.tasks import generate_bulk_download_zip, process_resource_moderation
 from users.auth import authenticate_request
 from users.models import UserRole
 
@@ -69,14 +70,42 @@ def list_resources(request, filters: ResourceFilterParams = Query(...)):
 def get_resource(request, resource_id: UUID):
     """Get a single resource by ID."""
     try:
-        resource = (
-            Resource.objects.select_related("category")
-            .prefetch_related("tags")
-            .get(id=resource_id)
-        )
+        resource = Resource.objects.select_related("category").prefetch_related("tags").get(id=resource_id)
         return 200, resource
     except Resource.DoesNotExist:
         return 404, {"detail": "Resource not found."}
+
+
+@router.get("/{uuid:resource_id}/related/", response={200: list[ResourceOut], 404: dict})
+def get_related_resources(request, resource_id: UUID):
+    """Returns related resources based on same category and overlapping tags."""
+    try:
+        resource = Resource.objects.prefetch_related("tags").get(id=resource_id)
+    except Resource.DoesNotExist:
+        return 404, {"detail": "Resource not found."}
+
+    tag_ids = list(resource.tags.values_list("id", flat=True))
+
+    qs = (
+        Resource.objects.filter(
+            category_id=resource.category_id,
+            status=ResourceStatus.APPROVED,
+        )
+        .exclude(id=resource_id)
+        .select_related("category")
+        .prefetch_related("tags")
+    )
+
+    if tag_ids:
+        qs = (
+            qs.filter(tags__id__in=tag_ids)
+            .annotate(shared_tag_count=Count("tags", filter=models.Q(tags__id__in=tag_ids)))
+            .order_by("-shared_tag_count", "-created_at")
+        )
+    else:
+        qs = qs.order_by("-created_at")
+
+    return 200, list(qs.distinct()[:10])
 
 
 @router.get("/categories/", response=list[CategoryOut])
@@ -92,6 +121,7 @@ def list_tags(request):
 
 
 # Student endpoints
+
 
 @router.post("/", response={201: ResourceOut, 400: dict, 401: dict})
 def create_resource(request, data: ResourceIn):
@@ -129,11 +159,9 @@ def create_resource(request, data: ResourceIn):
         tags = Tag.objects.filter(id__in=data.tag_ids)
         resource.tags.set(tags)
 
-    resource = (
-        Resource.objects.select_related("category")
-        .prefetch_related("tags")
-        .get(id=resource.id)
-    )
+    resource = Resource.objects.select_related("category").prefetch_related("tags").get(id=resource.id)
+
+    process_resource_moderation.delay(str(resource.id))
 
     return 201, resource
 
@@ -193,6 +221,7 @@ def get_bulk_download(request, bulk_download_id: UUID):
 
 # Admin Endpoints
 
+
 @router.patch("/{resource_id}/moderate/", response={200: ResourceOut, 400: dict, 401: dict, 403: dict, 404: dict})
 def moderate_resource(request, resource_id: UUID, data: ModerateIn):
     """Approve or reject a pending resource"""
@@ -205,11 +234,7 @@ def moderate_resource(request, resource_id: UUID, data: ModerateIn):
         return 403, {"detail": "Admin access required."}
 
     try:
-        resource = (
-            Resource.objects.select_related("category")
-            .prefetch_related("tags")
-            .get(id=resource_id)
-        )
+        resource = Resource.objects.select_related("category").prefetch_related("tags").get(id=resource_id)
     except Resource.DoesNotExist:
         return 404, {"detail": "Resource not found."}
 
@@ -246,13 +271,9 @@ def delete_resource(request, resource_id: UUID):
         return 403, {"detail": "You do not have permission to delete this resource."}
 
     if is_admin and not is_owner:
-        has_open_report = Report.objects.filter(
-            resource=resource, status=ReportStatus.OPEN
-        ).exists()
+        has_open_report = Report.objects.filter(resource=resource, status=ReportStatus.OPEN).exists()
         if not has_open_report or resource.status != ResourceStatus.REJECTED:
-            return 403, {
-                "detail": "Admins can only delete resources that are rejected and have an open report."
-            }
+            return 403, {"detail": "Admins can only delete resources that are rejected and have an open report."}
 
     if resource.type == ResourceType.PDF and resource.r2_object_key:
         with contextlib.suppress(Exception):

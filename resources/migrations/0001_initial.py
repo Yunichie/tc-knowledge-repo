@@ -10,7 +10,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -71,9 +70,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "task_id",
-                    models.CharField(
-                        blank=True, max_length=255, null=True, unique=True
-                    ),
+                    models.CharField(blank=True, max_length=255, null=True, unique=True),
                 ),
                 (
                     "status",
@@ -145,9 +142,7 @@ class Migration(migrations.Migration):
                 ("markdown_body", models.TextField(blank=True)),
                 (
                     "search_vector",
-                    django.contrib.postgres.search.SearchVectorField(
-                        blank=True, null=True
-                    ),
+                    django.contrib.postgres.search.SearchVectorField(blank=True, null=True),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -169,9 +164,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "tags",
-                    models.ManyToManyField(
-                        related_name="resources", to="resources.tag"
-                    ),
+                    models.ManyToManyField(related_name="resources", to="resources.tag"),
                 ),
             ],
             options={
