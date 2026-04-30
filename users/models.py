@@ -38,6 +38,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=UserRole.STUDENT,
     )
     is_active = models.BooleanField(default=True)
+    strike_count = models.IntegerField(default=0)
+    banned_until = models.DateTimeField(null=True, blank=True)
     date_joined = models.DateTimeField(auto_now_add=True)
 
     objects = UserManager()

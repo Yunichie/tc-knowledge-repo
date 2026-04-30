@@ -10,19 +10,22 @@ class UserAdmin(BaseUserAdmin):
     list_filter = ["role", "is_active"]
     search_fields = ["email", "first_name", "last_name"]
     ordering = ["-date_joined"]
-    
+
     fieldsets = (
         (None, {"fields": ("email", "password")}),
         ("Personal Info", {"fields": ("first_name", "last_name")}),
         ("Permissions", {"fields": ("role", "is_active")}),
         ("Important dates", {"fields": ("date_joined",)}),
     )
-    
+
     add_fieldsets = (
-        (None, {
-            "classes": ("wide",),
-            "fields": ("email", "password1", "password2", "first_name", "last_name", "role"),
-        }),
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("email", "password1", "password2", "first_name", "last_name", "role"),
+            },
+        ),
     )
-    
+
     readonly_fields = ["date_joined"]

@@ -1,4 +1,5 @@
 from django.db import IntegrityError
+from django.utils import timezone
 from ninja import Router
 
 from .auth import authenticate_request, generate_jwt
@@ -18,9 +19,9 @@ def register(request, data: RegisterSchema):
             last_name=data.last_name or "",
             role=UserRole.STUDENT,
         )
-        
+
         access_token = generate_jwt(user)
-        
+
         return 201, {
             "access_token": access_token,
             "user": user,
@@ -37,15 +38,19 @@ def login(request, data: LoginSchema):
         user = User.objects.get(email=data.email)
     except User.DoesNotExist:
         return 401, {"detail": "Invalid credentials"}
-    
+
     if not user.check_password(data.password):
         return 401, {"detail": "Invalid credentials"}
-    
+
     if not user.is_active:
         return 403, {"detail": "Account is inactive"}
-    
+
+    if user.banned_until and user.banned_until > timezone.now():
+        ban_date = user.banned_until.strftime("%Y-%m-%d %H:%M:%S")
+        return 403, {"detail": f"Your account is temporarily suspended until {ban_date} UTC."}
+
     access_token = generate_jwt(user)
-    
+
     return 200, {
         "access_token": access_token,
         "user": user,
