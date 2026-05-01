@@ -1,0 +1,145 @@
+meta {
+  name: Resolve Report (Admin)
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{base_url}}/api/reports/:report_id/resolve/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+params:path {
+  report_id: 
+}
+
+body:json {
+  {
+    "action": "dismiss"
+  }
+}
+
+example {
+  name: Dismiss Report
+  request: {
+    url: {{base_url}}/api/reports/550e8400-e29b-41d4-a716-446655440000/resolve/
+    method: PATCH
+    auth: bearer
+    body: {
+      type: json
+      content: '''{
+  "action": "dismiss"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "resource_id": "660e8400-e29b-41d4-a716-446655440000",
+  "reporter_id": "990e8400-e29b-41d4-a716-446655440000",
+  "reason": "inappropriate_content",
+  "description": "This resource contains inappropriate material",
+  "status": "dismissed",
+  "resolved_by_id": "990e8400-e29b-41d4-a716-446655440010",
+  "created_at": "2026-05-02T10:00:00Z",
+  "updated_at": "2026-05-02T11:00:00Z"
+}'''
+    }
+  }
+}
+
+example {
+  name: Remove Resource
+  request: {
+    url: {{base_url}}/api/reports/550e8400-e29b-41d4-a716-446655440000/resolve/
+    method: PATCH
+    auth: bearer
+    body: {
+      type: json
+      content: '''{
+  "action": "remove_resource"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "resource_id": "660e8400-e29b-41d4-a716-446655440000",
+  "reporter_id": "990e8400-e29b-41d4-a716-446655440000",
+  "reason": "inappropriate_content",
+  "description": "This resource contains inappropriate material",
+  "status": "removed",
+  "resolved_by_id": "990e8400-e29b-41d4-a716-446655440010",
+  "created_at": "2026-05-02T10:00:00Z",
+  "updated_at": "2026-05-02T11:00:00Z"
+}'''
+    }
+  }
+}
+
+example {
+  name: Invalid Action
+  request: {
+    url: {{base_url}}/api/reports/550e8400-e29b-41d4-a716-446655440000/resolve/
+    method: PATCH
+    auth: bearer
+    body: {
+      type: json
+      content: '''{
+  "action": "invalid"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 400
+      text: Bad Request
+    }
+    body: {
+      type: json
+      content: '''{
+  "detail": "Action must be 'dismiss' or 'remove_resource'."
+}'''
+    }
+  }
+}
+
+docs {
+  # Resolve Report (Admin)
+  
+  Resolve a report by dismissing it or removing the resource. Admin only.
+  
+  ## Authentication
+  
+  Requires Bearer token with admin role.
+  
+  ## Path Parameters
+  
+  - `report_id` (required): UUID of the report
+  
+  ## Request Body
+  
+  - `action` (required): "dismiss" or "remove_resource"
+  
+  ## Actions
+  
+  - `dismiss`: Mark report as dismissed, resource remains approved
+  - `remove_resource`: Mark report as removed, resource status changed to rejected
+}

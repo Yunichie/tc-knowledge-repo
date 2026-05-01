@@ -1,0 +1,142 @@
+meta {
+  name: Create Report
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/reports/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "resource_id": "uuid-here",
+    "reason": "inappropriate_content",
+    "description": "This resource contains inappropriate material"
+  }
+}
+
+example {
+  name: Report Inappropriate Content
+  request: {
+    url: {{base_url}}/api/reports/
+    method: POST
+    auth: bearer
+    body: {
+      type: json
+      content: '''{
+  "resource_id": "660e8400-e29b-41d4-a716-446655440000",
+  "reason": "inappropriate_content",
+  "description": "This resource contains inappropriate material that violates community guidelines"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 201
+      text: Created
+    }
+    body: {
+      type: json
+      content: '''{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "resource_id": "660e8400-e29b-41d4-a716-446655440000",
+  "reporter_id": "990e8400-e29b-41d4-a716-446655440000",
+  "reason": "inappropriate_content",
+  "description": "This resource contains inappropriate material that violates community guidelines",
+  "status": "open",
+  "resolved_by_id": null,
+  "created_at": "2026-05-02T10:00:00Z",
+  "updated_at": "2026-05-02T10:00:00Z"
+}'''
+    }
+  }
+}
+
+example {
+  name: Report Copyright Violation
+  request: {
+    url: {{base_url}}/api/reports/
+    method: POST
+    auth: bearer
+    body: {
+      type: json
+      content: '''{
+  "resource_id": "660e8400-e29b-41d4-a716-446655440000",
+  "reason": "copyright",
+  "description": "This material is copyrighted and should not be shared publicly"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 201
+      text: Created
+    }
+    body: {
+      type: json
+      content: '''{
+  "id": "550e8400-e29b-41d4-a716-446655440001",
+  "resource_id": "660e8400-e29b-41d4-a716-446655440000",
+  "reporter_id": "990e8400-e29b-41d4-a716-446655440000",
+  "reason": "copyright",
+  "description": "This material is copyrighted and should not be shared publicly",
+  "status": "open",
+  "resolved_by_id": null,
+  "created_at": "2026-05-02T10:05:00Z",
+  "updated_at": "2026-05-02T10:05:00Z"
+}'''
+    }
+  }
+}
+
+example {
+  name: Resource Not Found
+  request: {
+    url: {{base_url}}/api/reports/
+    method: POST
+    auth: bearer
+    body: {
+      type: json
+      content: '''{
+  "resource_id": "999e8400-e29b-41d4-a716-446655440000",
+  "reason": "spam",
+  "description": "This is spam"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 400
+      text: Bad Request
+    }
+    body: {
+      type: json
+      content: '''{
+  "detail": "Resource not found."
+}'''
+    }
+  }
+}
+
+docs {
+  # Create Report
+  
+  Submit a report for a resource. If 3+ unique users report the same resource, it will be automatically quarantined.
+  
+  ## Authentication
+  
+  Requires Bearer token.
+  
+  ## Request Body
+  
+  - `resource_id` (required): UUID of the resource being reported
+  - `reason` (required): Report reason (e.g., inappropriate_content, copyright, spam, incorrect_info)
+  - `description` (required): Detailed description of the issue
+}

@@ -1,0 +1,55 @@
+meta {
+  name: List Categories
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/api/resources/categories/
+  body: none
+  auth: none
+}
+
+example {
+  name: List All Categories
+  request: {
+    url: {{base_url}}/api/resources/categories/
+    method: GET
+    auth: none
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''[
+  {
+    "id": "660e8400-e29b-41d4-a716-446655440000",
+    "name": "Computer Science",
+    "slug": "computer-science",
+    "description": "Computer Science and Programming resources"
+  },
+  {
+    "id": "660e8400-e29b-41d4-a716-446655440001",
+    "name": "Mathematics",
+    "slug": "mathematics",
+    "description": "Math courses and materials"
+  },
+  {
+    "id": "660e8400-e29b-41d4-a716-446655440002",
+    "name": "Physics",
+    "slug": "physics",
+    "description": "Physics lectures and lab materials"
+  }
+]'''
+    }
+  }
+}
+
+docs {
+  # List Categories
+  
+  List all available resource categories.
+}

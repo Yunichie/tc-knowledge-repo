@@ -1,0 +1,172 @@
+meta {
+  name: Register
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/auth/register/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "student@student.its.ac.id",
+    "password": "password123",
+    "first_name": "John",
+    "last_name": "Doe"
+  }
+}
+
+example {
+  name: Success Registration
+  request: {
+    url: {{base_url}}/api/auth/register/
+    method: POST
+    auth: none
+    body: {
+      type: json
+      content: '''{
+  "email": "student@student.its.ac.id",
+  "password": "password123",
+  "first_name": "John",
+  "last_name": "Doe"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 201
+      text: Created
+    }
+    body: {
+      type: json
+      content: '''{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDAwIiwiZXhwIjoxNzE1MDAwMDAwfQ.abc123",
+  "user": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "email": "student@student.its.ac.id",
+    "first_name": "John",
+    "last_name": "Doe",
+    "role": "student",
+    "banned_until": null,
+    "date_joined": "2026-05-02T10:00:00Z"
+  }
+}'''
+    }
+  }
+}
+
+example {
+  name: Minimal Registration
+  request: {
+    url: {{base_url}}/api/auth/register/
+    method: POST
+    auth: none
+    body: {
+      type: json
+      content: '''{
+  "email": "mahasiswa@its.ac.id",
+  "password": "securepass456"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 201
+      text: Created
+    }
+    body: {
+      type: json
+      content: '''{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "user": {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "email": "mahasiswa@its.ac.id",
+    "first_name": "",
+    "last_name": "",
+    "role": "student",
+    "banned_until": null,
+    "date_joined": "2026-05-02T10:05:00Z"
+  }
+}'''
+    }
+  }
+}
+
+example {
+  name: Email Already Registered
+  request: {
+    url: {{base_url}}/api/auth/register/
+    method: POST
+    auth: none
+    body: {
+      type: json
+      content: '''{
+  "email": "student@student.its.ac.id",
+  "password": "password123"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 400
+      text: Bad Request
+    }
+    body: {
+      type: json
+      content: '''{
+  "detail": "Email already registered"
+}'''
+    }
+  }
+}
+
+example {
+  name: Invalid Email Domain
+  request: {
+    url: {{base_url}}/api/auth/register/
+    method: POST
+    auth: none
+    body: {
+      type: json
+      content: '''{
+  "email": "user@gmail.com",
+  "password": "password123"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 400
+      text: Bad Request
+    }
+    body: {
+      type: json
+      content: '''{
+  "detail": "Registration is restricted to institutional email addresses."
+}'''
+    }
+  }
+}
+
+docs {
+  # Register
+  
+  Create a new user account. Only institutional email addresses are allowed (@student.its.ac.id, @its.ac.id).
+  
+  ## Request Body
+  
+  - `email` (required): Valid institutional email address
+  - `password` (required): Minimum 8 characters
+  - `first_name` (optional): User's first name
+  - `last_name` (optional): User's last name
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setEnvVar("access_token", res.body.access_token);
+    bru.setEnvVar("user_id", res.body.user.id);
+  }
+}

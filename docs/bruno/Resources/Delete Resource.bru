@@ -1,0 +1,94 @@
+meta {
+  name: Delete Resource
+  type: http
+  seq: 11
+}
+
+delete {
+  url: {{base_url}}/api/resources/:resource_id/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+params:path {
+  resource_id: 
+}
+
+example {
+  name: Delete Own Resource
+  request: {
+    url: {{base_url}}/api/resources/550e8400-e29b-41d4-a716-446655440000/
+    method: DELETE
+    auth: bearer
+  }
+  response: {
+    status: {
+      code: 204
+      text: No Content
+    }
+    body: {
+      type: text
+      content: ''''''
+    }
+  }
+}
+
+example {
+  name: Resource Not Found
+  request: {
+    url: {{base_url}}/api/resources/999e8400-e29b-41d4-a716-446655440000/
+    method: DELETE
+    auth: bearer
+  }
+  response: {
+    status: {
+      code: 404
+      text: Not Found
+    }
+    body: {
+      type: json
+      content: '''{
+  "detail": "Resource not found."
+}'''
+    }
+  }
+}
+
+example {
+  name: Permission Denied
+  request: {
+    url: {{base_url}}/api/resources/550e8400-e29b-41d4-a716-446655440000/
+    method: DELETE
+    auth: bearer
+  }
+  response: {
+    status: {
+      code: 403
+      text: Forbidden
+    }
+    body: {
+      type: json
+      content: '''{
+  "detail": "You do not have permission to delete this resource."
+}'''
+    }
+  }
+}
+
+docs {
+  # Delete Resource
+  
+  Delete a resource. Students can delete their own resources. Admins can only delete resources that are rejected and have an open report.
+  
+  ## Authentication
+  
+  Requires Bearer token.
+  
+  ## Path Parameters
+  
+  - `resource_id` (required): UUID of the resource
+}
