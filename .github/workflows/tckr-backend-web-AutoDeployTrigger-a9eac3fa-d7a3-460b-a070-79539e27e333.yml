@@ -4,19 +4,19 @@ name: Trigger auto deployment for tckr-backend-web
 on:
   # Automatically trigger it when detected changes in repo
   push:
-    branches: 
+    branches:
       [ main ]
     paths:
     - '**'
     - '.github/workflows/tckr-backend-web-AutoDeployTrigger-a9eac3fa-d7a3-460b-a070-79539e27e333.yml'
 
-  # Allow manual trigger 
-  workflow_dispatch:      
+  # Allow manual trigger
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions: 
+    permissions:
       id-token: write #This is required for requesting the OIDC JWT Token
       contents: read #Required when GH token is used to authenticate with private repo
 
@@ -46,4 +46,12 @@ jobs:
           _buildArgumentsKey_: |
             _buildArgumentsValues_
 
-
+      - name: Deploy Worker to Container App
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          registryUrl: tckrregistry.azurecr.io
+          registryUsername: ${{ secrets.TCKRBACKENDWEB_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.TCKRBACKENDWEB_REGISTRY_PASSWORD }}
+          containerAppName: tckr-celery-worker
+          resourceGroup: tckr
+          imageToDeploy: tckrregistry.azurecr.io/tckr-backend-web:${{ github.sha }}
