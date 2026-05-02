@@ -38,7 +38,8 @@ def generate_bulk_download_zip(self, bulk_download_id: str):
 
         search_query = filters.get("search")
         if search_query:
-            qs = qs.filter(search_vector=search_query)
+            from django.contrib.postgres.search import SearchQuery
+            qs = qs.filter(search_vector=SearchQuery(search_query, config="english"))
 
         resources = qs.order_by("-created_at")[:100]
 

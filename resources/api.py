@@ -66,7 +66,7 @@ def list_resources(request, filters: ResourceFilterParams = Query(...)):
         qs = qs.filter(type=filters.type)
 
     if filters.search:
-        query = SearchQuery(filters.search)
+        query = SearchQuery(filters.search, config="english")
         qs = qs.filter(search_vector=query).annotate(rank=SearchRank(F("search_vector"), query))
 
     if filters.search:

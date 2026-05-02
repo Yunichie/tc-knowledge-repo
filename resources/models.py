@@ -1,7 +1,7 @@
 import uuid
 
 from django.contrib.postgres.indexes import GinIndex
-from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.search import SearchVector, SearchVectorField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -77,7 +77,13 @@ class Resource(models.Model):
     uploader = models.ForeignKey(User, on_delete=models.CASCADE, related_name="uploaded_resources")
 
     # Search
-    search_vector = SearchVectorField(null=True, blank=True)
+    search_vector = models.GeneratedField(
+        expression=SearchVector("title", config="english", weight="A")
+        + SearchVector("description", config="english", weight="B")
+        + SearchVector("markdown_body", config="english", weight="C"),
+        output_field=SearchVectorField(null=True, blank=True),
+        db_persist=True,
+    )
 
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
