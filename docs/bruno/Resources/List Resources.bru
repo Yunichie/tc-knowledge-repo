@@ -17,6 +17,7 @@ params:query {
   ~tag_ids: 
   ~search: 
   ~type: 
+  ~status: 
   ~sort: newest
 }
 
@@ -149,10 +150,52 @@ example {
   }
 }
 
+example {
+  name: List Pending Resources (Admin)
+  request: {
+    url: {{base_url}}/api/resources/?status=pending&limit=20
+    method: GET
+    auth: bearer
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "title": "Introduction to Algorithms",
+    "description": "Comprehensive guide",
+    "type": "pdf",
+    "status": "pending",
+    "rejection_reason": "",
+    "r2_object_key": "resources/2026/05/abc123.pdf",
+    "youtube_url": "",
+    "markdown_body": "",
+    "category": {
+      "id": "660e8400-e29b-41d4-a716-446655440000",
+      "name": "Computer Science",
+      "slug": "computer-science",
+      "description": "CS resources"
+    },
+    "tags": [],
+    "uploader_id": "990e8400-e29b-41d4-a716-446655440000",
+    "created_at": "2026-05-02T10:00:00Z",
+    "updated_at": "2026-05-02T10:00:00Z"
+  }
+]'''
+    }
+  }
+}
+
 docs {
   # List Resources
   
-  List all approved resources with optional filtering, search, and pagination.
+  List resources with optional filtering, search, and pagination. Defaults to `approved` resources.
+  Admins can filter by `status` (e.g., `pending`, `rejected`, `quarantined`) by authenticating with an admin token.
   
   ## Query Parameters
   
@@ -162,5 +205,6 @@ docs {
   - `tag_ids` (optional): Filter by tag UUIDs (comma-separated)
   - `search` (optional): Full-text search query
   - `type` (optional): Filter by resource type (pdf, youtube, markdown)
+  - `status` (optional): Filter by resource status (admin only, default: approved)
   - `sort` (optional): Sort order (newest, oldest)
 }
