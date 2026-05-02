@@ -1,0 +1,129 @@
+meta {
+  name: Presigned Upload
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{base_url}}/api/resources/presigned-upload/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "filename": "document.pdf",
+    "content_type": "application/pdf"
+  }
+}
+
+example {
+  name: PDF Presigned URL
+  request: {
+    url: {{base_url}}/api/resources/presigned-upload/
+    method: POST
+    auth: bearer
+    body: {
+      type: json
+      content: '''{
+  "filename": "algorithms-notes.pdf",
+  "content_type": "application/pdf"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''{
+  "url": "https://r2.cloudflare.com/bucket/resources/2026/05/abc123-algorithms-notes.pdf?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=...",
+  "object_key": "resources/2026/05/abc123-algorithms-notes.pdf"
+}'''
+    }
+  }
+}
+
+example {
+  name: Image Presigned URL
+  request: {
+    url: {{base_url}}/api/resources/presigned-upload/
+    method: POST
+    auth: bearer
+    body: {
+      type: json
+      content: '''{
+  "filename": "diagram.png",
+  "content_type": "image/png"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''{
+  "url": "https://r2.cloudflare.com/bucket/resources/2026/05/xyz789-diagram.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=...",
+  "object_key": "resources/2026/05/xyz789-diagram.png"
+}'''
+    }
+  }
+}
+
+example {
+  name: Unauthorized Error
+  request: {
+    url: {{base_url}}/api/resources/presigned-upload/
+    method: POST
+    auth: none
+    body: {
+      type: json
+      content: '''{
+  "filename": "test.pdf",
+  "content_type": "application/pdf"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 401
+      text: Unauthorized
+    }
+    body: {
+      type: json
+      content: '''{
+  "detail": "Authentication required"
+}'''
+    }
+  }
+}
+
+docs {
+  # Presigned Upload
+  
+  Generate a presigned PUT URL for direct-to-R2 file upload.
+  
+  ## Authentication
+  
+  Requires Bearer token.
+  
+  ## Request Body
+  
+  - `filename` (required): Original filename
+  - `content_type` (required): MIME type (e.g., application/pdf, image/png)
+  
+  ## Usage Flow
+  
+  1. Call this endpoint to get presigned URL and object_key
+  2. PUT file directly to the returned URL with Content-Type header
+  3. Use the object_key when creating the resource
+}

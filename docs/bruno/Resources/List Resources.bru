@@ -1,0 +1,166 @@
+meta {
+  name: List Resources
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/resources/?limit=20&offset=0
+  body: none
+  auth: none
+}
+
+params:query {
+  limit: 20
+  offset: 0
+  ~category_id: 
+  ~tag_ids: 
+  ~search: 
+  ~type: 
+  ~sort: newest
+}
+
+example {
+  name: List All Resources
+  request: {
+    url: {{base_url}}/api/resources/?limit=20&offset=0
+    method: GET
+    auth: none
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "title": "Introduction to Algorithms",
+    "description": "Comprehensive guide covering sorting, searching, and graph algorithms",
+    "type": "pdf",
+    "status": "approved",
+    "rejection_reason": "",
+    "r2_object_key": "resources/2026/05/abc123-algorithms.pdf",
+    "youtube_url": "",
+    "markdown_body": "",
+    "category": {
+      "id": "660e8400-e29b-41d4-a716-446655440000",
+      "name": "Computer Science",
+      "slug": "computer-science",
+      "description": "Computer Science and Programming resources"
+    },
+    "tags": [
+      {
+        "id": "770e8400-e29b-41d4-a716-446655440000",
+        "name": "Semester 3",
+        "type": "semester"
+      }
+    ],
+    "uploader_id": "990e8400-e29b-41d4-a716-446655440000",
+    "created_at": "2026-05-02T10:00:00Z",
+    "updated_at": "2026-05-02T10:00:00Z"
+  }
+]'''
+    }
+  }
+}
+
+example {
+  name: Filter by Category
+  request: {
+    url: {{base_url}}/api/resources/?category_id=660e8400-e29b-41d4-a716-446655440000&limit=20
+    method: GET
+    auth: none
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "title": "Introduction to Algorithms",
+    "description": "Comprehensive guide",
+    "type": "pdf",
+    "status": "approved",
+    "rejection_reason": "",
+    "r2_object_key": "resources/2026/05/abc123.pdf",
+    "youtube_url": "",
+    "markdown_body": "",
+    "category": {
+      "id": "660e8400-e29b-41d4-a716-446655440000",
+      "name": "Computer Science",
+      "slug": "computer-science",
+      "description": "CS resources"
+    },
+    "tags": [],
+    "uploader_id": "990e8400-e29b-41d4-a716-446655440000",
+    "created_at": "2026-05-02T10:00:00Z",
+    "updated_at": "2026-05-02T10:00:00Z"
+  }
+]'''
+    }
+  }
+}
+
+example {
+  name: Search Resources
+  request: {
+    url: {{base_url}}/api/resources/?search=calculus&limit=20
+    method: GET
+    auth: none
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440010",
+    "title": "Calculus Tutorial",
+    "description": "Video series on differential and integral calculus",
+    "type": "youtube",
+    "status": "approved",
+    "rejection_reason": "",
+    "r2_object_key": "",
+    "youtube_url": "https://www.youtube.com/watch?v=WUvTyaaNkzM",
+    "markdown_body": "",
+    "category": {
+      "id": "660e8400-e29b-41d4-a716-446655440001",
+      "name": "Mathematics",
+      "slug": "mathematics",
+      "description": "Math courses"
+    },
+    "tags": [],
+    "uploader_id": "990e8400-e29b-41d4-a716-446655440001",
+    "created_at": "2026-05-01T15:30:00Z",
+    "updated_at": "2026-05-01T15:30:00Z"
+  }
+]'''
+    }
+  }
+}
+
+docs {
+  # List Resources
+  
+  List all approved resources with optional filtering, search, and pagination.
+  
+  ## Query Parameters
+  
+  - `limit` (optional): Number of results per page (1-100, default: 20)
+  - `offset` (optional): Pagination offset (default: 0)
+  - `category_id` (optional): Filter by category UUID
+  - `tag_ids` (optional): Filter by tag UUIDs (comma-separated)
+  - `search` (optional): Full-text search query
+  - `type` (optional): Filter by resource type (pdf, youtube, markdown)
+  - `sort` (optional): Sort order (newest, oldest)
+}

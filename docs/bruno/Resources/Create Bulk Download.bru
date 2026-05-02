@@ -1,0 +1,129 @@
+meta {
+  name: Create Bulk Download
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{base_url}}/api/resources/bulk-download/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "category_id": "uuid-here",
+    "tag_ids": ["uuid-here"],
+    "search": "algorithms"
+  }
+}
+
+example {
+  name: Bulk Download by Category
+  request: {
+    url: {{base_url}}/api/resources/bulk-download/
+    method: POST
+    auth: bearer
+    body: {
+      type: json
+      content: '''{
+  "category_id": "660e8400-e29b-41d4-a716-446655440000"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 201
+      text: Created
+    }
+    body: {
+      type: json
+      content: '''{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "task_id": "abc123-def456-ghi789",
+  "status": "pending",
+  "download_url": ""
+}'''
+    }
+  }
+}
+
+example {
+  name: Bulk Download with Search
+  request: {
+    url: {{base_url}}/api/resources/bulk-download/
+    method: POST
+    auth: bearer
+    body: {
+      type: json
+      content: '''{
+  "search": "calculus"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 201
+      text: Created
+    }
+    body: {
+      type: json
+      content: '''{
+  "id": "550e8400-e29b-41d4-a716-446655440001",
+  "task_id": "xyz123-uvw456-rst789",
+  "status": "pending",
+  "download_url": ""
+}'''
+    }
+  }
+}
+
+example {
+  name: Bulk Download All Resources
+  request: {
+    url: {{base_url}}/api/resources/bulk-download/
+    method: POST
+    auth: bearer
+    body: {
+      type: json
+      content: '''{}'''
+    }
+  }
+  response: {
+    status: {
+      code: 201
+      text: Created
+    }
+    body: {
+      type: json
+      content: '''{
+  "id": "550e8400-e29b-41d4-a716-446655440002",
+  "task_id": "all123-all456-all789",
+  "status": "pending",
+  "download_url": ""
+}'''
+    }
+  }
+}
+
+docs {
+  # Create Bulk Download
+  
+  Enqueue a bulk download zip job and return its tracking ID.
+  
+  ## Authentication
+  
+  Requires Bearer token.
+  
+  ## Request Body
+  
+  All fields are optional. If none provided, downloads all resources.
+  
+  - `category_id` (optional): Filter by category UUID
+  - `tag_ids` (optional): Filter by tag UUIDs
+  - `search` (optional): Full-text search query
+}

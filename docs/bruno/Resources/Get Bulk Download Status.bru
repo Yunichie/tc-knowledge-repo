@@ -1,0 +1,133 @@
+meta {
+  name: Get Bulk Download Status
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{base_url}}/api/resources/bulk-download/:bulk_download_id/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+params:path {
+  bulk_download_id: 
+}
+
+example {
+  name: Status Pending
+  request: {
+    url: {{base_url}}/api/resources/bulk-download/550e8400-e29b-41d4-a716-446655440000/
+    method: GET
+    auth: bearer
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "task_id": "abc123-def456-ghi789",
+  "status": "pending",
+  "download_url": ""
+}'''
+    }
+  }
+}
+
+example {
+  name: Status Processing
+  request: {
+    url: {{base_url}}/api/resources/bulk-download/550e8400-e29b-41d4-a716-446655440000/
+    method: GET
+    auth: bearer
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "task_id": "abc123-def456-ghi789",
+  "status": "processing",
+  "download_url": ""
+}'''
+    }
+  }
+}
+
+example {
+  name: Status Completed
+  request: {
+    url: {{base_url}}/api/resources/bulk-download/550e8400-e29b-41d4-a716-446655440000/
+    method: GET
+    auth: bearer
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "task_id": "abc123-def456-ghi789",
+  "status": "completed",
+  "download_url": "https://r2.cloudflare.com/downloads/bulk-abc123.zip"
+}'''
+    }
+  }
+}
+
+example {
+  name: Bulk Download Not Found
+  request: {
+    url: {{base_url}}/api/resources/bulk-download/999e8400-e29b-41d4-a716-446655440000/
+    method: GET
+    auth: bearer
+  }
+  response: {
+    status: {
+      code: 404
+      text: Not Found
+    }
+    body: {
+      type: json
+      content: '''{
+  "detail": "Bulk download not found."
+}'''
+    }
+  }
+}
+
+docs {
+  # Get Bulk Download Status
+  
+  Poll the status of a bulk download job.
+  
+  ## Authentication
+  
+  Requires Bearer token.
+  
+  ## Path Parameters
+  
+  - `bulk_download_id` (required): UUID from create bulk download response
+  
+  ## Status Values
+  
+  - `pending`: Job is queued
+  - `processing`: Job is being processed
+  - `completed`: Job is done, download_url is available
+  - `failed`: Job failed
+}
