@@ -1,0 +1,39 @@
+meta {
+  name: Health Check
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/health
+  body: none
+  auth: none
+}
+
+example {
+  name: Health Check Success
+  request: {
+    url: {{base_url}}/api/health
+    method: GET
+    auth: none
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''{
+  "status": "ok",
+  "version": "0.1.0"
+}'''
+    }
+  }
+}
+
+docs {
+  # Health Check
+  
+  Returns 200 if the API is running.
+}

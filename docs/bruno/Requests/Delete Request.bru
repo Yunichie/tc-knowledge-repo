@@ -1,0 +1,94 @@
+meta {
+  name: Delete Request
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{base_url}}/api/requests/:request_id/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+params:path {
+  request_id: 
+}
+
+example {
+  name: Delete Request Success
+  request: {
+    url: {{base_url}}/api/requests/550e8400-e29b-41d4-a716-446655440000/
+    method: DELETE
+    auth: bearer
+  }
+  response: {
+    status: {
+      code: 204
+      text: No Content
+    }
+    body: {
+      type: text
+      content: ''''''
+    }
+  }
+}
+
+example {
+  name: Request Not Found
+  request: {
+    url: {{base_url}}/api/requests/999e8400-e29b-41d4-a716-446655440000/
+    method: DELETE
+    auth: bearer
+  }
+  response: {
+    status: {
+      code: 404
+      text: Not Found
+    }
+    body: {
+      type: json
+      content: '''{
+  "detail": "Request not found."
+}'''
+    }
+  }
+}
+
+example {
+  name: Permission Denied
+  request: {
+    url: {{base_url}}/api/requests/550e8400-e29b-41d4-a716-446655440000/
+    method: DELETE
+    auth: bearer
+  }
+  response: {
+    status: {
+      code: 403
+      text: Forbidden
+    }
+    body: {
+      type: json
+      content: '''{
+  "detail": "You do not have permission to delete this request."
+}'''
+    }
+  }
+}
+
+docs {
+  # Delete Request
+  
+  Delete a resource request. Restricted to the requester or an admin.
+  
+  ## Authentication
+  
+  Requires Bearer token.
+  
+  ## Path Parameters
+  
+  - `request_id` (required): UUID of the request
+}

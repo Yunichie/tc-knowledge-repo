@@ -1,0 +1,88 @@
+meta {
+  name: List Reports (Admin)
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/api/reports/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+example {
+  name: List All Reports
+  request: {
+    url: {{base_url}}/api/reports/
+    method: GET
+    auth: bearer
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "resource_id": "660e8400-e29b-41d4-a716-446655440000",
+    "reporter_id": "990e8400-e29b-41d4-a716-446655440000",
+    "reason": "inappropriate_content",
+    "description": "This resource contains inappropriate material",
+    "status": "open",
+    "resolved_by_id": null,
+    "created_at": "2026-05-02T10:00:00Z",
+    "updated_at": "2026-05-02T10:00:00Z"
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "resource_id": "660e8400-e29b-41d4-a716-446655440001",
+    "reporter_id": "990e8400-e29b-41d4-a716-446655440001",
+    "reason": "copyright",
+    "description": "Copyright violation",
+    "status": "dismissed",
+    "resolved_by_id": "990e8400-e29b-41d4-a716-446655440010",
+    "created_at": "2026-05-01T15:30:00Z",
+    "updated_at": "2026-05-01T16:00:00Z"
+  }
+]'''
+    }
+  }
+}
+
+example {
+  name: Admin Access Required
+  request: {
+    url: {{base_url}}/api/reports/
+    method: GET
+    auth: bearer
+  }
+  response: {
+    status: {
+      code: 403
+      text: Forbidden
+    }
+    body: {
+      type: json
+      content: '''{
+  "detail": "Admin access required."
+}'''
+    }
+  }
+}
+
+docs {
+  # List Reports (Admin)
+  
+  List all reports. Admin only.
+  
+  ## Authentication
+  
+  Requires Bearer token with admin role.
+}

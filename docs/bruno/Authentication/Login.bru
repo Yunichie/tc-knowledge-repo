@@ -1,0 +1,166 @@
+meta {
+  name: Login
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/api/auth/login/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "student@student.its.ac.id",
+    "password": "password123"
+  }
+}
+
+example {
+  name: Student Login Success
+  request: {
+    url: {{base_url}}/api/auth/login/
+    method: POST
+    auth: none
+    body: {
+      type: json
+      content: '''{
+  "email": "student@student.its.ac.id",
+  "password": "password123"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDAwIiwiZXhwIjoxNzE1MDAwMDAwfQ.abc123",
+  "user": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "email": "student@student.its.ac.id",
+    "first_name": "John",
+    "last_name": "Doe",
+    "role": "student",
+    "banned_until": null,
+    "date_joined": "2026-05-02T10:00:00Z"
+  }
+}'''
+    }
+  }
+}
+
+example {
+  name: Admin Login Success
+  request: {
+    url: {{base_url}}/api/auth/login/
+    method: POST
+    auth: none
+    body: {
+      type: json
+      content: '''{
+  "email": "admin@its.ac.id",
+  "password": "adminpass123"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "user": {
+    "id": "550e8400-e29b-41d4-a716-446655440010",
+    "email": "admin@its.ac.id",
+    "first_name": "Admin",
+    "last_name": "User",
+    "role": "admin",
+    "banned_until": null,
+    "date_joined": "2026-01-01T00:00:00Z"
+  }
+}'''
+    }
+  }
+}
+
+example {
+  name: Invalid Credentials
+  request: {
+    url: {{base_url}}/api/auth/login/
+    method: POST
+    auth: none
+    body: {
+      type: json
+      content: '''{
+  "email": "student@student.its.ac.id",
+  "password": "wrongpassword"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 401
+      text: Unauthorized
+    }
+    body: {
+      type: json
+      content: '''{
+  "detail": "Invalid credentials"
+}'''
+    }
+  }
+}
+
+example {
+  name: Account Banned
+  request: {
+    url: {{base_url}}/api/auth/login/
+    method: POST
+    auth: none
+    body: {
+      type: json
+      content: '''{
+  "email": "banned@student.its.ac.id",
+  "password": "password123"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 403
+      text: Forbidden
+    }
+    body: {
+      type: json
+      content: '''{
+  "detail": "Your account is temporarily suspended until 2026-05-10 15:30:00 UTC."
+}'''
+    }
+  }
+}
+
+docs {
+  # Login
+  
+  Authenticate with email and password.
+  
+  ## Request Body
+  
+  - `email` (required): User's email address
+  - `password` (required): User's password
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setEnvVar("access_token", res.body.access_token);
+    bru.setEnvVar("user_id", res.body.user.id);
+  }
+}

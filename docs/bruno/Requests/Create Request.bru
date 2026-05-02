@@ -1,0 +1,135 @@
+meta {
+  name: Create Request
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/api/requests/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "title": "Need calculus notes",
+    "description": "Looking for comprehensive calculus notes for midterm exam preparation"
+  }
+}
+
+example {
+  name: Create Calculus Request
+  request: {
+    url: {{base_url}}/api/requests/
+    method: POST
+    auth: bearer
+    body: {
+      type: json
+      content: '''{
+  "title": "Need calculus notes",
+  "description": "Looking for comprehensive calculus notes for midterm exam preparation"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 201
+      text: Created
+    }
+    body: {
+      type: json
+      content: '''{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "title": "Need calculus notes",
+  "description": "Looking for comprehensive calculus notes for midterm exam preparation",
+  "status": "open",
+  "requester_id": "990e8400-e29b-41d4-a716-446655440000",
+  "fulfilled_by_resource_id": null,
+  "created_at": "2026-05-02T10:00:00Z",
+  "updated_at": "2026-05-02T10:00:00Z"
+}'''
+    }
+  }
+}
+
+example {
+  name: Create Lab Materials Request
+  request: {
+    url: {{base_url}}/api/requests/
+    method: POST
+    auth: bearer
+    body: {
+      type: json
+      content: '''{
+  "title": "Database lab materials needed",
+  "description": "Looking for SQL practice exercises and lab assignments"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 201
+      text: Created
+    }
+    body: {
+      type: json
+      content: '''{
+  "id": "550e8400-e29b-41d4-a716-446655440001",
+  "title": "Database lab materials needed",
+  "description": "Looking for SQL practice exercises and lab assignments",
+  "status": "open",
+  "requester_id": "990e8400-e29b-41d4-a716-446655440000",
+  "fulfilled_by_resource_id": null,
+  "created_at": "2026-05-02T10:05:00Z",
+  "updated_at": "2026-05-02T10:05:00Z"
+}'''
+    }
+  }
+}
+
+example {
+  name: Unauthorized Error
+  request: {
+    url: {{base_url}}/api/requests/
+    method: POST
+    auth: none
+    body: {
+      type: json
+      content: '''{
+  "title": "Need calculus notes",
+  "description": "Looking for comprehensive calculus notes"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 401
+      text: Unauthorized
+    }
+    body: {
+      type: json
+      content: '''{
+  "detail": "Authentication required"
+}'''
+    }
+  }
+}
+
+docs {
+  # Create Request
+  
+  Create a new resource request.
+  
+  ## Authentication
+  
+  Requires Bearer token.
+  
+  ## Request Body
+  
+  - `title` (required): Request title
+  - `description` (required): Detailed description of what is needed
+}

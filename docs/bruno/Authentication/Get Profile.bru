@@ -1,0 +1,73 @@
+meta {
+  name: Get Profile
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/api/auth/me/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+example {
+  name: Success Response
+  request: {
+    url: {{base_url}}/api/auth/me/
+    method: GET
+    auth: bearer
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "student@student.its.ac.id",
+  "first_name": "John",
+  "last_name": "Doe",
+  "role": "student",
+  "banned_until": null,
+  "date_joined": "2026-05-02T10:00:00Z"
+}'''
+    }
+  }
+}
+
+example {
+  name: Unauthorized Error
+  request: {
+    url: {{base_url}}/api/auth/me/
+    method: GET
+    auth: none
+  }
+  response: {
+    status: {
+      code: 401
+      text: Unauthorized
+    }
+    body: {
+      type: json
+      content: '''{
+  "detail": "Invalid or expired token"
+}'''
+    }
+  }
+}
+
+docs {
+  # Get Profile
+  
+  Get the authenticated user's profile information.
+  
+  ## Authentication
+  
+  Requires Bearer token in Authorization header.
+}

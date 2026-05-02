@@ -1,0 +1,131 @@
+meta {
+  name: Fulfill Request
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{base_url}}/api/requests/:request_id/fulfill/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+params:path {
+  request_id: 
+}
+
+body:json {
+  {
+    "resource_id": "uuid-here"
+  }
+}
+
+example {
+  name: Fulfill Request Success
+  request: {
+    url: {{base_url}}/api/requests/550e8400-e29b-41d4-a716-446655440000/fulfill/
+    method: PATCH
+    auth: bearer
+    body: {
+      type: json
+      content: '''{
+  "resource_id": "660e8400-e29b-41d4-a716-446655440000"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 200
+      text: OK
+    }
+    body: {
+      type: json
+      content: '''{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "title": "Need calculus notes",
+  "description": "Looking for comprehensive calculus notes for midterm exam preparation",
+  "status": "fulfilled",
+  "requester_id": "990e8400-e29b-41d4-a716-446655440000",
+  "fulfilled_by_resource_id": "660e8400-e29b-41d4-a716-446655440000",
+  "created_at": "2026-05-02T10:00:00Z",
+  "updated_at": "2026-05-02T11:00:00Z"
+}'''
+    }
+  }
+}
+
+example {
+  name: Resource Not Found
+  request: {
+    url: {{base_url}}/api/requests/550e8400-e29b-41d4-a716-446655440000/fulfill/
+    method: PATCH
+    auth: bearer
+    body: {
+      type: json
+      content: '''{
+  "resource_id": "999e8400-e29b-41d4-a716-446655440000"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 400
+      text: Bad Request
+    }
+    body: {
+      type: json
+      content: '''{
+  "detail": "Resource not found."
+}'''
+    }
+  }
+}
+
+example {
+  name: Request Already Fulfilled
+  request: {
+    url: {{base_url}}/api/requests/550e8400-e29b-41d4-a716-446655440000/fulfill/
+    method: PATCH
+    auth: bearer
+    body: {
+      type: json
+      content: '''{
+  "resource_id": "660e8400-e29b-41d4-a716-446655440000"
+}'''
+    }
+  }
+  response: {
+    status: {
+      code: 400
+      text: Bad Request
+    }
+    body: {
+      type: json
+      content: '''{
+  "detail": "Request is not open for fulfillment."
+}'''
+    }
+  }
+}
+
+docs {
+  # Fulfill Request
+  
+  Fulfill a request by linking an existing resource.
+  
+  ## Authentication
+  
+  Requires Bearer token.
+  
+  ## Path Parameters
+  
+  - `request_id` (required): UUID of the request
+  
+  ## Request Body
+  
+  - `resource_id` (required): UUID of the resource that fulfills this request
+}
