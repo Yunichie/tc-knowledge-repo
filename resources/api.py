@@ -38,10 +38,23 @@ router = Router()
 # Public Endpoints
 
 
-@router.get("/", response=list[ResourceOut])
+@router.get("/", response={200: list[ResourceOut], 401: dict, 403: dict})
 def list_resources(request, filters: ResourceFilterParams = Query(...)):
-    """List approved resources with optional filtering, search, and pagination."""
-    qs = Resource.objects.filter(status=ResourceStatus.APPROVED).select_related("category").prefetch_related("tags")
+    """List resources. Defaults to APPROVED. Admins can filter by other statuses."""
+    if filters.status and filters.status != ResourceStatus.APPROVED:
+        try:
+            user = authenticate_request(request)
+        except ValueError as e:
+            return 401, {"detail": str(e)}
+
+        if user.role != UserRole.ADMIN:
+            return 403, {"detail": "Admin access required to view non-approved resources."}
+
+        qs = Resource.objects.filter(status=filters.status)
+    else:
+        qs = Resource.objects.filter(status=ResourceStatus.APPROVED)
+
+    qs = qs.select_related("category").prefetch_related("tags")
 
     if filters.category_id:
         qs = qs.filter(category_id=filters.category_id)
@@ -63,7 +76,7 @@ def list_resources(request, filters: ResourceFilterParams = Query(...)):
     else:
         qs = qs.order_by("-created_at")
 
-    return qs[filters.offset : filters.offset + filters.limit]
+    return 200, list(qs[filters.offset : filters.offset + filters.limit])
 
 
 @router.get("/{uuid:resource_id}/", response={200: ResourceOut, 404: dict})

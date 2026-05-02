@@ -56,6 +56,7 @@ class ResourceFilterParams(Schema):
     tag_ids: list[UUID] | None = None
     search: str | None = None
     type: str | None = None
+    status: str | None = None
     sort: str | None = "newest"  # newest, oldest
     limit: int = Field(20, ge=1, le=100)
     offset: int = Field(0, ge=0)
