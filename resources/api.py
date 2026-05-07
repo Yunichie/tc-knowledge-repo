@@ -54,7 +54,7 @@ def list_resources(request, filters: ResourceFilterParams = Query(...)):
     else:
         qs = Resource.objects.filter(status=ResourceStatus.APPROVED)
 
-    qs = qs.select_related("category").prefetch_related("tags")
+    qs = qs.select_related("category", "uploader").prefetch_related("tags")
 
     if filters.category_id:
         qs = qs.filter(category_id=filters.category_id)
@@ -83,7 +83,7 @@ def list_resources(request, filters: ResourceFilterParams = Query(...)):
 def get_resource(request, resource_id: UUID):
     """Get a single resource by ID."""
     try:
-        resource = Resource.objects.select_related("category").prefetch_related("tags").get(id=resource_id)
+        resource = Resource.objects.select_related("category", "uploader").prefetch_related("tags").get(id=resource_id)
         return 200, resource
     except Resource.DoesNotExist:
         return 404, {"detail": "Resource not found."}
@@ -105,7 +105,7 @@ def get_related_resources(request, resource_id: UUID):
             status=ResourceStatus.APPROVED,
         )
         .exclude(id=resource_id)
-        .select_related("category")
+        .select_related("category", "uploader")
         .prefetch_related("tags")
     )
 
@@ -172,7 +172,7 @@ def create_resource(request, data: ResourceIn):
         tags = Tag.objects.filter(id__in=data.tag_ids)
         resource.tags.set(tags)
 
-    resource = Resource.objects.select_related("category").prefetch_related("tags").get(id=resource.id)
+    resource = Resource.objects.select_related("category", "uploader").prefetch_related("tags").get(id=resource.id)
 
     process_resource_moderation.delay(str(resource.id))
 
@@ -247,7 +247,7 @@ def moderate_resource(request, resource_id: UUID, data: ModerateIn):
         return 403, {"detail": "Admin access required."}
 
     try:
-        resource = Resource.objects.select_related("category").prefetch_related("tags").get(id=resource_id)
+        resource = Resource.objects.select_related("category", "uploader").prefetch_related("tags").get(id=resource_id)
     except Resource.DoesNotExist:
         return 404, {"detail": "Resource not found."}
 

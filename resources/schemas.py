@@ -46,9 +46,17 @@ class ResourceOut(Schema):
     category: CategoryOut
     tags: list[TagOut]
     uploader_id: UUID
+    uploader_name: str
 
     created_at: datetime
     updated_at: datetime
+
+    @staticmethod
+    def resolve_uploader_name(obj):
+        if not hasattr(obj, "uploader") or obj.uploader is None:
+            return ""
+        name = f"{obj.uploader.first_name} {obj.uploader.last_name}".strip()
+        return name if name else obj.uploader.email
 
 
 class ResourceFilterParams(Schema):
